@@ -10,12 +10,17 @@ namespace Tmds.Babeltrace
         private readonly void** _fieldDefs;
         private readonly int _length;
 
-        internal FieldListEnumerable(void* eventDef, void** fieldDefs, int length)
+        internal FieldListEnumerable(void* eventDef, void* scopeDef)
         {
             _eventDef = eventDef;
+            void** fieldDefs;
+            int length;
+            int rv = Interop.GetFields(eventDef, scopeDef, &fieldDefs, &length);
             _fieldDefs = fieldDefs;
             _length = length;
         }
+
+        public int Length => _length;
 
         public FieldListEnumerator GetEnumerator()
         {

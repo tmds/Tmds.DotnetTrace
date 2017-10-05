@@ -1,4 +1,5 @@
 using System;
+using System.Collections.Generic;
 using System.Runtime.InteropServices;
 
 namespace Tmds.Babeltrace
@@ -14,6 +15,17 @@ namespace Tmds.Babeltrace
             _fieldDef = fieldDef;
         }
 
+        internal Field(void* eventDef, void* scopeDef, string name)
+        {
+            void* fieldDef = Interop.GetEventField(eventDef, scopeDef, name);
+            if (fieldDef == null)
+            {
+                throw new KeyNotFoundException($"No such field: {name}");
+            }
+            _eventDef = eventDef;
+            _fieldDef = fieldDef;
+        }
+
         public bool Exists => _fieldDef != null;
 
         public Field ElementAt(int index)
@@ -21,6 +33,21 @@ namespace Tmds.Babeltrace
             var definition = Interop.GetFieldAt(_eventDef, _fieldDef, index);
             return new Field(_eventDef, definition);
         }
+
+        public Field ChildField(string name)
+            => new Field(_eventDef, _fieldDef, name);
+
+        public short GetInt16()
+            => (short)GetInt64();
+
+        public ushort GetUInt16()
+            => (ushort)GetUInt64();
+
+        public uint GetUInt32()
+            => (uint)GetUInt64();
+
+        public int GetInt32()
+            => (int)GetInt64();
 
         public ulong GetUInt64()
             => Interop.GetEventUInt64(_fieldDef);
@@ -78,14 +105,6 @@ namespace Tmds.Babeltrace
         }
 
         public FieldListEnumerable Fields
-        {
-            get
-            {
-                void** fieldDefs;
-                int length;
-                int rv = Interop.GetFields(_eventDef, _fieldDef, &fieldDefs, &length);
-                return new FieldListEnumerable(_eventDef, fieldDefs, length);
-            }
-        }
+            => new FieldListEnumerable(_eventDef, _fieldDef);
     }
 }

@@ -1,6 +1,6 @@
 namespace Tmds.Babeltrace
 {
-    public enum CftScope
+    public enum CtfScope
     {
         PacketHeader = 0,
         PacketContext = 1,

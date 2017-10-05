@@ -27,9 +27,9 @@ namespace Tmds.Babeltrace
         public ulong TimestampCycles
             => Interop.GetEventTimestampCycles(_eventDef);
 
-        public EventScope Scope(CftScope scope)
+        public EventScope Scope(CtfScope scope)
         {
-            void* scopeDef = Interop.GetCftScopeDef(_eventDef, scope);
+            void* scopeDef = Interop.GetCtfScopeDef(_eventDef, scope);
             return new EventScope(_eventDef, scopeDef);
         }
     }

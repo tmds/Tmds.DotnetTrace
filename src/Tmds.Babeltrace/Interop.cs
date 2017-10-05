@@ -62,7 +62,7 @@ namespace Tmds.Babeltrace
         public static extern ulong GetEventTimestampCycles(void* eventDef);
 
         [DllImportAttribute(BabeltraceCtfLibrary, EntryPoint = "bt_ctf_get_top_level_scope")]
-        public static extern void* GetCftScopeDef(void* eventDef, CftScope scope);
+        public static extern void* GetCtfScopeDef(void* eventDef, CtfScope scope);
 
         [DllImportAttribute(BabeltraceCtfLibrary, EntryPoint = "bt_ctf_get_field")]
         public static extern void* GetEventField(void* eventDef, void* scopeDef, string fieldName);

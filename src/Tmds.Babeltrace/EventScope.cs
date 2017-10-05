@@ -14,20 +14,9 @@ namespace Tmds.Babeltrace
         }
 
         public Field Field(string name)
-        {
-            void* fieldDef = Interop.GetEventField(_eventDef, _scopeDef, name);
-            return new Field(_eventDef, fieldDef);
-        }
+            => new Field(_eventDef, _scopeDef, name);
 
         public FieldListEnumerable Fields
-        {
-            get
-            {
-                void** fieldDefs;
-                int length;
-                int rv = Interop.GetFields(_eventDef, _scopeDef, &fieldDefs, &length);
-                return new FieldListEnumerable(_eventDef, fieldDefs, length);
-            }
-        }
+            => new FieldListEnumerable(_eventDef, _scopeDef);
     }
 }
