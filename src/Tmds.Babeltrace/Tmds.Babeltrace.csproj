@@ -1,8 +1,17 @@
 <Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>netstandard2.0</TargetFramework>
+    <TargetFramework>netstandard1.3</TargetFramework>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <Description>.NET bindings for libbabeltrace</Description>
+    <VersionPrefix>0.1.0</VersionPrefix>
+    <Authors>Tom Deseyn</Authors>
+    <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
+    <PackageTags>babeltrace;ctf;lttng</PackageTags>
+    <RepositoryType>git</RepositoryType>
+    <RepositoryUrl>https://github.com/tmds/Tmds.DotnetTrace</RepositoryUrl>
+    <PackageLicenseUrl>https://raw.githubusercontent.com/tmds/Tmds.DotnetTrace/master/COPYING</PackageLicenseUrl>
+    <Copyright>Tom Deseyn</Copyright>
   </PropertyGroup>
 
 </Project>
