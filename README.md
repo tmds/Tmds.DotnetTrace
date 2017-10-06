@@ -1,3 +1,14 @@
+To use these packages, add the following myget feed to your NuGet.Config file.
+
+```
+<?xml version="1.0" encoding="utf-8"?>
+<configuration>
+  <packageSources>
+    <add key="tmds" value="https://www.myget.org/F/tmds/api/v3/index.json" />
+  </packageSources>
+</configuration>
+```
+
 # Tmds.Babeltrace
 
 *Tmds.Babeltrace* provides .NET bindings for [libbabeltrace](https://www.efficios.com/babeltrace)
@@ -41,12 +52,37 @@ using (var context = new BtContext())
 
 *Tmds.DotnetTrace.Tool* allows to trace a dotnet application and get a summary of some important trace events.
 
+This is making use of LTTng tracing performed by .NET Core. You **must** set `export COMPlus_EnableEventLog=1` to enable
+.NET Core tracing.
+
 To use *Tmds.DotnetTrace.Tool* you need libbabeltrace and lttng on your system.
 
 Fedora: `dnf install libbabeltrace lttng-tools`
 
+Now add the tool using DotNetCliToolReference to a project (it doesn't matter which):
+
+```xml
+<Project Sdk="Microsoft.NET.Sdk">
+  <PropertyGroup>
+    <TargetFramework>netcoreapp2.0</TargetFramework>
+  </PropertyGroup>
+  <ItemGroup>
+    <DotNetCliToolReference Include="Tmds.DotnetTrace.Tool" Version="0.1.0-*" />
+  </ItemGroup>
+</Project>
 ```
-$ dotnet Tmds.DotnetTrace.Tool.dll start
-$ dotnet Tmds.DotnetTrace.Tool.dll stop
-$ dotnet Tmds.DotnetTrace.Tool.dll report
+
+Now run restore:
 ```
+$ dotnet restore
+```
+
+You can start/stop and view the report using the following commands:
+
+```
+$ dotnet trace start
+$ dotnet trace stop
+$ dotnet trace report | less
+```
+
+PS: don't forget to set `COMPlus_EnableEventLog=1`!
