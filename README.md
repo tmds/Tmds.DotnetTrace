@@ -1,6 +1,6 @@
 To use these packages, add the following myget feed to your NuGet.Config file.
 
-```
+```xml
 <?xml version="1.0" encoding="utf-8"?>
 <configuration>
   <packageSources>
@@ -15,11 +15,11 @@ To use these packages, add the following myget feed to your NuGet.Config file.
 that allow reading [common trace format](http://diamon.org/ctf/) (CTF) files
 generated using [Linux Trace Toolkit next generation](http://lttng.org/) (LTTng).
 
-To use *Tmds.Babeltrace* you need libbabeltrace on your system.
+To use Tmds.Babeltrace you need *libbabeltrace* on your system.
 
 Fedora: `dnf install libbabeltrace`
 
-The following example iterates over all events and prints out the name, each field's name and its type.
+The following example iterates over all events and prints out the event name, each field's name and its type.
 
 ```C#
 using (var context = new BtContext())
@@ -50,12 +50,12 @@ using (var context = new BtContext())
 
 # Tmds.DotnetTrace.Tool
 
-*Tmds.DotnetTrace.Tool* allows to trace a dotnet application and get a summary of some important trace events.
+*Tmds.DotnetTrace.Tool* allows to trace a dotnet application and get a summary report of the trace.
 
 This is making use of LTTng tracing performed by .NET Core. You **must** set `export COMPlus_EnableEventLog=1` to enable
 .NET Core tracing.
 
-To use *Tmds.DotnetTrace.Tool* you need libbabeltrace and lttng on your system.
+To use Tmds.DotnetTrace.Tool you need *libbabeltrace* and *lttng* on your system.
 
 Fedora: `dnf install libbabeltrace lttng-tools`
 
@@ -85,4 +85,4 @@ $ dotnet trace stop
 $ dotnet trace report | less
 ```
 
-PS: don't forget to set `COMPlus_EnableEventLog=1`!
+PS: don't forget to set `COMPlus_EnableEventLog=1` for the applications you wish to trace!
