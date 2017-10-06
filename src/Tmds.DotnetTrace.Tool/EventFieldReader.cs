@@ -38,7 +38,7 @@ namespace Tmds.DotnetTrace.Tool
                 // const unsigned __int64 GenerationSize2,
                 gen2Size = reader.ReadUInt64();
             }
-            catch
+            finally
             {
                 Return(segment);
             }
