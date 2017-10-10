@@ -71,6 +71,7 @@ namespace Tmds.DotnetTrace.Tool
 
             Console.WriteLine($"Storing trace in: {CurrentTraceFolder.Path}");
             Console.WriteLine("Don't forget to 'export COMPlus_EnableEventLog=1' for traced applications.");
+            Console.WriteLine("Set 'export COMPlus_EventSourceFilter=q' too to avoid overhead of EventSources.");
         }
 
         static void Stop()
