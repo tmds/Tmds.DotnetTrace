@@ -1,5 +1,4 @@
 using System;
-using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
@@ -9,8 +8,9 @@ namespace Tmds.DotnetTrace.Tool
     {
         public int Pid { get; }
 
-        public KeyValuePair<string, int>[] AllocationSampleSummary { get; private set; }
-            = Array.Empty<KeyValuePair<string, int>>();
+        public CountHistogram<string> AllocationSamples { get; private set; } = new CountHistogram<string>();
+
+        public CountHistogram<(string typeName, string message)> ExceptionsThrown { get; private set; } = new CountHistogram<(string, string)>();
 
         public int[] GCCount { get; } = new int[3];
 
@@ -25,27 +25,12 @@ namespace Tmds.DotnetTrace.Tool
 
         public void AddAllocationSample(string typename)
         {
-            var summary = AllocationSampleSummary;
-            for (int i = 0; i < summary.Length; i++)
-            {
-                if (summary[i].Key == typename)
-                {
-                    // Update existing item
-                    summary[i] = new KeyValuePair<string, int>(typename, summary[i].Value + 1);
-                    if (i > 0 && summary[i - 1].Value < summary[i].Value)
-                    {
-                        // Sort
-                        Array.Sort(summary, (l, r) => r.Value - l.Value);
-                    }
-                    return;
-                }
-            }
+            AllocationSamples.Add(typename);
+        }
 
-            // Add new item
-            summary = new KeyValuePair<string, int>[summary.Length + 1];
-            Array.Copy(AllocationSampleSummary, summary, AllocationSampleSummary.Length);
-            summary[summary.Length - 1] = new KeyValuePair<string, int>(typename, 1);
-            AllocationSampleSummary = summary;
+        public void AddExceptionThrown(string typename, string message)
+        {
+            ExceptionsThrown.Add((typename, message));
         }
 
         public void AddGC(int depth)
@@ -65,7 +50,7 @@ namespace Tmds.DotnetTrace.Tool
             writer.WriteLine($"-- Report for PID {Pid} (NewProcess={NewProcess}) --");
 
             writer.WriteLine("Allocation samples (Top 10):");
-            foreach (var typeAllocations in AllocationSampleSummary.Take(10))
+            foreach (var typeAllocations in AllocationSamples.Data.Take(10))
             {
                 writer.WriteLine($" {typeAllocations.Key}: {typeAllocations.Value}");
             }
@@ -88,6 +73,12 @@ namespace Tmds.DotnetTrace.Tool
                     histogram.Range(j, out lower, out upper);
                     writer.WriteLine($"  {lower} - {upper}: {histogram.Buckets[j]}");
                 }
+            }
+
+            writer.WriteLine("Exceptions thrown (Top 10):");
+            foreach (var exceptionThrown in ExceptionsThrown.Data.Take(10))
+            {
+                writer.WriteLine($" {exceptionThrown.Key.typeName} ({exceptionThrown.Key.message}): {exceptionThrown.Value}");
             }
         }
     }

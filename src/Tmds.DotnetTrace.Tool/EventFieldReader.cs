@@ -12,6 +12,13 @@ namespace Tmds.DotnetTrace.Tool
             typeName = packetFields.Field("TypeName").GetString();
         }
 
+        public static void ReadExceptionThrown_V1(Event ev, out string typeName, out string message)
+        {
+            var packetFields = ev.Scope(CtfScope.EventFields);
+            typeName = packetFields.Field("ExceptionType").GetString();
+            message = packetFields.Field("ExceptionMessage").GetString();
+        }
+
         public static void ReadGCStart_V2(Event ev, out int depth)
         {
             var packetFields = ev.Scope(CtfScope.EventFields);
