@@ -53,7 +53,8 @@ using (var context = new BtContext())
 *Tmds.DotnetTrace.Tool* allows to trace a dotnet application and get a summary report of the trace.
 
 This is making use of LTTng tracing performed by .NET Core. You **must** set `export COMPlus_EnableEventLog=1` to enable
-.NET Core tracing.
+.NET Core tracing. You **may** want to set `export COMPlus_EventSourceFilter=q` to avoid overhead of enabling all
+`EventSources` (`q` can be anything that isn't an event source name).
 
 To use Tmds.DotnetTrace.Tool you need *libbabeltrace* and *lttng* on your system.
 
@@ -85,4 +86,5 @@ $ dotnet trace stop
 $ dotnet trace report | less
 ```
 
-PS: don't forget to set `COMPlus_EnableEventLog=1` for the applications you wish to trace!
+PS: don't forget to set `COMPlus_EnableEventLog=1` (and `COMPlus_EventSourceFilter=q`) for the applications you wish to
+trace!
