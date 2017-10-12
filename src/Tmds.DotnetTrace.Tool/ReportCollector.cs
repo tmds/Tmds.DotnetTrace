@@ -6,17 +6,81 @@ namespace Tmds.DotnetTrace.Tool
 {
     class ReportCollector
     {
+        public class GarbageCollection
+        {
+            public GCType Type { get; set; }
+            public int Generation { get; set; }
+            public ulong PauseStartTime { get; set; }
+        }
+
+        private GarbageCollection _backgroundGc;
+        private GarbageCollection _currentGc;
+
+        public bool IsBackgroundGCRunning => _currentGc?.Type == GCType.BackgroundGC;
+
+        public GarbageCollection SetLastGc(GCType type, int generation, ulong pauseStartTime)
+        {
+            return null;
+        }
+
+        public void StartGc(GCType type, int generation, ulong pauseStartTime)
+        {
+            _currentGc = new GarbageCollection
+            {
+                Type = type,
+                Generation = generation,
+                PauseStartTime = pauseStartTime
+            };
+            if (type == GCType.BackgroundGC)
+            {
+                _backgroundGc = _currentGc;
+                generation++;
+            }
+            GCCount[generation] = GCCount[generation] + 1;
+        }
+
+        public void EndGc(ulong pauseStopTime, bool endBackground)
+        {
+            if (_currentGc == null)
+            {
+                return;
+            }
+            if (endBackground != IsBackgroundGCRunning)
+            {
+                return;
+            }
+            if (_currentGc == _backgroundGc)
+            {
+                _backgroundGc = null;
+            }
+            if (_currentGc.PauseStartTime != ulong.MaxValue)
+            {
+                ulong pauseTime = pauseStopTime - _currentGc.PauseStartTime;
+                int generation = _currentGc.Generation;
+                if (_currentGc.Type == GCType.BackgroundGC)
+                {
+                    generation++;
+                }
+                GCPauzeTimeNs[generation].Add(pauseTime);
+            }
+            _currentGc = null;
+        }
+
+        public ulong SuspendStartTime { get; set; } = ulong.MaxValue;
+
         public int Pid { get; }
 
         public CountHistogram<string> AllocationSamples { get; private set; } = new CountHistogram<string>();
 
         public CountHistogram<(string typeName, string message)> ExceptionsThrown { get; private set; } = new CountHistogram<(string, string)>();
 
-        public int[] GCCount { get; } = new int[3];
+        public int[] GCCount { get; } = new int[4];
 
         public bool NewProcess { get; set; }
 
         public LogHistogram[] HeapSize { get; } = new [] { new LogHistogram(), new LogHistogram(), new LogHistogram() };
+
+        public NumberStats[] GCPauzeTimeNs { get; } = new [] { new NumberStats(), new NumberStats(), new NumberStats(), new NumberStats() };
 
         public ReportCollector(int pid)
         {
@@ -31,11 +95,6 @@ namespace Tmds.DotnetTrace.Tool
         public void AddExceptionThrown(string typename, string message)
         {
             ExceptionsThrown.Add((typename, message));
-        }
-
-        public void AddGC(int depth)
-        {
-            GCCount[depth] = GCCount[depth] + 1;
         }
 
         public void AddHeapStats(ulong gen0Size, ulong gen1Size, ulong gen2Size)
@@ -58,7 +117,10 @@ namespace Tmds.DotnetTrace.Tool
             writer.WriteLine("Garbage collections:");
             for (int i = 0; i < GCCount.Length; i++)
             {
-                writer.WriteLine($" Generation {i}: {GCCount[i]}");
+                double pauseTimeMsAverage = GCPauzeTimeNs[i].Average / 1000000.0;
+                double pauseTimeMsMax = GCPauzeTimeNs[i].Max / 1000000.0;
+                string generation = i == GCCount.Length - 1 ? "Background" : $"Generation {i}";
+                writer.WriteLine($" {generation}: {GCCount[i]} (avg: {pauseTimeMsAverage}ms, max: {pauseTimeMsMax}ms)");
             }
 
             writer.WriteLine("Heap size (After GC, MB):");

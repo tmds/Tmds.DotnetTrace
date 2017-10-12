@@ -73,11 +73,28 @@ namespace Tmds.DotnetTrace.Tool
                         collector.AddAllocationSample(typeName);
                     }
                         break;
+                    case DotNetEvents.GCSuspendEEBegin_V1:
+                    {
+                        collector.SuspendStartTime = ev.TimestampNs;
+                    }
+                        break;
                     case DotNetEvents.GCStart_V2:
                     {
-                        int depth;
-                        EventFieldReader.ReadGCStart_V2(ev, out depth);
-                        collector.AddGC(depth);
+                        int generation;
+                        GCType type;
+                        EventFieldReader.ReadGCStart_V2(ev, out generation, out type);
+                        ulong pauseStartTime;
+                        bool isEphemeralGCAtBGCStart = collector.IsBackgroundGCRunning && type == GCType.NonConcurrentGC;
+                        // TODO: GCReason.PMFullGC ??
+                        if (isEphemeralGCAtBGCStart)
+                        {
+                            pauseStartTime = ev.TimestampNs;
+                        }
+                        else
+                        {
+                            pauseStartTime = collector.SuspendStartTime; // TODO
+                        }
+                        collector.StartGc(type, generation, pauseStartTime);
                     }
                         break;
                     case DotNetEvents.GCHeapStats_V1:
@@ -91,6 +108,9 @@ namespace Tmds.DotnetTrace.Tool
                         gen1Size = gen1Size >> 16;
                         gen2Size = gen2Size >> 16;
                         collector.AddHeapStats(gen0Size, gen1Size, gen2Size);
+
+                        // This is where a background GC ends.
+                        collector.EndGc(ev.TimestampNs, endBackground: true);
                     }
                         break;
                     case DotNetEvents.ExceptionThrown_V1:
@@ -99,6 +119,11 @@ namespace Tmds.DotnetTrace.Tool
                         string message;
                         EventFieldReader.ReadExceptionThrown_V1(ev, out typeName, out message);
                         collector.AddExceptionThrown(typeName, message);
+                    }
+                        break;
+                    case DotNetEvents.GCRestartEEEnd_V1:
+                    {
+                        collector.EndGc(ev.TimestampNs, endBackground: false);
                     }
                         break;
                 }

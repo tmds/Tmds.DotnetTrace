@@ -19,10 +19,11 @@ namespace Tmds.DotnetTrace.Tool
             message = packetFields.Field("ExceptionMessage").GetString();
         }
 
-        public static void ReadGCStart_V2(Event ev, out int depth)
+        public static void ReadGCStart_V2(Event ev, out int depth, out GCType type)
         {
             var packetFields = ev.Scope(CtfScope.EventFields);
             depth = (int)packetFields.Field("Depth").GetUInt32();
+            type = (GCType)packetFields.Field("Type").GetUInt32();;
         }
 
         public static void ReadGCHeapStats_V1(Event ev, out ulong gen0Size, out ulong gen1Size, out ulong gen2Size)

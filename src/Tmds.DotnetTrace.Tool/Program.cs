@@ -62,7 +62,9 @@ namespace Tmds.DotnetTrace.Tool
                 DotNetEvents.GCAllocationTick_V2, // https://github.com/dotnet/coreclr/pull/14338
                 DotNetEvents.GCStart_V2,
                 DotNetEvents.GCHeapStats_V1,
-                DotNetEvents.ExceptionThrown_V1
+                DotNetEvents.ExceptionThrown_V1,
+                DotNetEvents.GCSuspendEEBegin_V1,
+                DotNetEvents.GCRestartEEEnd_V1
             };
             RunProcess("lttng", $"enable-event --session={SessionName} --userspace {string.Join(",", events)}");
 
