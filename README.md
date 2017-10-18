@@ -17,7 +17,7 @@ generated using [Linux Trace Toolkit next generation](http://lttng.org/) (LTTng)
 
 To use Tmds.Babeltrace you need *libbabeltrace* on your system.
 
-Fedora: `dnf install libbabeltrace`
+Fedora: `dnf install libbabeltrace-devel`
 
 The following example iterates over all events and prints out the event name, each field's name and its type.
 
