@@ -64,22 +64,24 @@ namespace Tmds.DotnetTrace.Tool
                 switch (ev.Name)
                 {
                     case DotNetEvents.RuntimeInformationStart:
+                    {
                         collector.NewProcess = true;
                         break;
+                    }
                     case DotNetEvents.GCAllocationTick_V3:
                     {
                         string typeName;
                         EventFieldReader.ReadGCAllocationTickV3(ev, out typeName);
                         collector.AddAllocationSample(typeName);
-                    }
                         break;
+                    }
                     case DotNetEvents.GCStart_V2:
                     {
                         int depth;
                         EventFieldReader.ReadGCStart_V2(ev, out depth);
                         collector.AddGC(depth);
-                    }
                         break;
+                    }
                     case DotNetEvents.GCHeapStats_V1:
                     {
                         ulong gen0Size;
@@ -91,16 +93,26 @@ namespace Tmds.DotnetTrace.Tool
                         gen1Size = gen1Size >> 16;
                         gen2Size = gen2Size >> 16;
                         collector.AddHeapStats(gen0Size, gen1Size, gen2Size);
-                    }
                         break;
+                    }
                     case DotNetEvents.ExceptionThrown_V1:
                     {
                         string typeName;
                         string message;
                         EventFieldReader.ReadExceptionThrown_V1(ev, out typeName, out message);
                         collector.AddExceptionThrown(typeName, message);
-                    }
                         break;
+                    }
+                    case DotNetEvents.MethodJitInliningFailed:
+                    {
+                        string methodBeingCompiled;
+                        string inlinee;
+                        bool failsAlways;
+                        string failReason;
+                        EventFieldReader.ReadMethodJitInliningFailed(ev, out methodBeingCompiled, out inlinee, out failsAlways, out failReason);
+                        collector.AddJitInlineFail(methodBeingCompiled, inlinee, failsAlways, failReason);
+                        break;
+                    }
                 }
             }
         }

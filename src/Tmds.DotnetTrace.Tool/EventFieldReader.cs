@@ -51,6 +51,35 @@ namespace Tmds.DotnetTrace.Tool
             }
         }
 
+        public static void ReadMethodJitInliningFailed(Event ev, out string methodBeingCompiled, out string inlinee, out bool failsAlways, out string failReason)
+        {
+            var packetFields = ev.Scope(CtfScope.EventFields);
+            ArraySegment<byte> segment;
+            try
+            {
+                segment = GetDataSequence(packetFields);
+                var reader = new ByteArrayReader(segment);
+                string methodBeingCompiledNamespace = reader.ReadWString();
+                string methodBeingCompiledName = reader.ReadWString();
+                string methodBeingCompiledNameSignature = reader.ReadWString();
+                string inlinerNamespace = reader.ReadWString();
+                string inlinerName = reader.ReadWString();
+                string inlinerNameSignature = reader.ReadWString();
+                string inlineeNamespace = reader.ReadWString();
+                string inlineeName = reader.ReadWString();
+                string inlineeNameSignature = reader.ReadWString();
+
+                failsAlways = reader.ReadBool();
+                failReason = reader.ReadCString();
+                methodBeingCompiled = $"{methodBeingCompiledNamespace}.{methodBeingCompiledName}({methodBeingCompiledNameSignature})";
+                inlinee = $"{inlineeNamespace}.{inlineeName}({inlineeNameSignature})";
+            }
+            finally
+            {
+                Return(segment);
+            }
+        }
+
         private static ArraySegment<byte> GetDataSequence(EventScope packetFields)
         {
             var dataField = packetFields.Field("__data__");
