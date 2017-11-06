@@ -5,8 +5,8 @@ namespace Tmds.Babeltrace
 {
     static unsafe class Interop
     {
-        public const string BabeltraceLibrary = "babeltrace";
-        public const string BabeltraceCtfLibrary = "babeltrace-ctf";
+        public const string BabeltraceLibrary = "libbabeltrace.so.1";
+        public const string BabeltraceCtfLibrary = "libbabeltrace-ctf.so.1";
 
         [DllImportAttribute(BabeltraceLibrary, EntryPoint = "bt_context_create")]
         public static extern ContextSafeHandle CreateContext();
